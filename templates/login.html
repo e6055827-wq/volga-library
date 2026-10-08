@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход для сотрудников{% endblock %}
+
+{% block content %}
+
+<div class="card auth-card">
+  <h2>🔐 Вход для сотрудников</h2>
+  <p class="muted">Для библиотекаря, учителя и администратора</p>
+
+  <form method="post" class="auth-form">
+    <label for="username">Логин</label>
+    <input id="username" name="username" required autofocus placeholder="admin">
+
+    <label for="password">Пароль</label>
+    <input id="password" name="password" type="password" required placeholder="••••••••">
+
+    <button type="submit" class="btn-primary">Войти</button>
+  </form>
+
+  <details class="demo-hint">
+    <summary>👀 Демо-доступ (для теста)</summary>
+    <ul>
+      <li><b>admin</b> / admin123 — администратор</li>
+      <li><b>librarian</b> / lib123 — библиотекарь</li>
+      <li><b>teacher</b> / teacher123 — учитель</li>
+    </ul>
+  </details>
+
+  <p class="auth-alt">
+    Или <a href="{{ url_for('student_entry') }}">войдите как ученик →</a>
+  </p>
+</div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход для ученика{% endblock %}
+
+{% block content %}
+
+<div class="card auth-card">
+  <h2>🎒 Вход для ученика</h2>
+  <p class="muted">Введите свои данные, как в классном журнале</p>
+
+  <form method="post" class="auth-form">
+    <label for="full_name">ФИО полностью</label>
+    <input id="full_name" name="full_name" required autofocus
+           placeholder="Иванов Иван Иванович">
+
+    <div class="form-row">
+      <div>
+        <label for="class_num">Класс (число)</label>
+        <input id="class_num" name="class_num" type="number"
+               min="1" max="11" required placeholder="5">
+      </div>
+      <div>
+        <label for="class_letter">Буква класса</label>
+        <input id="class_letter" name="class_letter" maxlength="2"
+               required placeholder="А">
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary">Войти</button>
+  </form>
+
+  <p class="auth-alt">
+    Я сотрудник — <a href="{{ url_for('login') }}">войти здесь →</a>
+  </p>
+</div>
+
+{% endblock %}

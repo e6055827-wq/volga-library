@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель библиотекаря{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>📚 Панель библиотекаря</h2>
+  <p>Книг: <b>{{ books|length }}</b> · Активных выдач: <b>{{ active_loans|length }}</b> · Броней: <b>{{ reservations|length }}</b></p>
+</div>
+
+<div class="card">
+  <h3>➕ Добавить книгу</h3>
+  <form method="post" action="{{ url_for('add_book') }}" enctype="multipart/form-data">
+    <div class="form-row">
+      <div>
+        <label>Название *</label>
+        <input name="title" required>
+      </div>
+      <div>
+        <label>Автор</label>
+        <input name="author">
+      </div>
+      <div>
+        <label>Категория *</label>
+        <select name="category" required>
+          <option value="encyclopedia">📕 Энциклопедия</option>
+          <option value="fiction">📗 Художественная</option>
+          <option value="collection">📘 Сборник</option>
+          <option value="textbook">📙 Учебник</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div><label>Издательство</label><input name="publisher"></div>
+      <div><label>Год</label><input name="year" type="number"></div>
+      <div><label>ISBN</label><input name="isbn"></div>
+      <div><label>Страниц</label><input name="pages" type="number"></div>
+    </div>
+
+    <div class="form-row">
+      <div><label>УДК</label><input name="udc"></div>
+      <div><label>ББК</label><input name="bbk"></div>
+      <div><label>Кол-во экз. *</label><input name="total_copies" type="number" value="1" required></div>
+    </div>
+
+    <label>Аннотация</label>
+    <textarea name="annotation" rows="3"></textarea>
+
+    <div class="form-row">
+      <div>
+        <label>Обложка — файл</label>
+        <input type="file" name="cover_file" accept="image/*">
+      </div>
+      <div>
+        <label>…или ссылка</label>
+        <input name="cover_url" placeholder="https://...">
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary">Добавить книгу</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>📤 Выдать книгу ученику</h3>
+  <form method="post" action="{{ url_for('issue_book') }}">
+    <div class="form-row">
+      <div>
+        <label>Книга</label>
+        <select name="book_id" required>
+          {% for b in books %}
+            <option value="{{ b.id }}" {% if b.available_copies <= 0 %}disabled{% endif %}>
+              {{ b.title }} — доступно {{ b.available_copies }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Ученик</label>
+        <select name="student_id" required>
+          {% for s in students %}
+            <option value="{{ s.id }}">{{ s.full_name }} ({{ s.class_code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Срок, дней</label>
+        <input name="days" type="number" value="14">
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Выдать</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>📖 Активные выдачи</h3>
+  {% if active_loans %}
+  <div class="table-wrap">
+    <table>
+      <tr><th>Книга</th><th>Кому</th><th>Выдана</th><th>Вернуть до</th><th></th></tr>
+      {% for l in active_loans %}
+      <tr>
+        <td>{{ l.book.title }}</td>
+        <td>{{ l.student.full_name if l.student else '—' }}</td>
+        <td>{{ l.issued_at.strftime('%d.%m.%Y') }}</td>
+        <td>{{ l.due_date.strftime('%d.%m.%Y') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('return_book', loan_id=l.id) }}">
+            <button class="btn-ok small">Вернул</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">Нет активных выдач.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>📌 Активные брони</h3>
+  {% if reservations %}
+  <div class="table-wrap">
+    <table>
+      <tr><th>Книга</th><th>Ученик</th><th>Истекает</th><th></th></tr>
+      {% for r in reservations %}
+      <tr>
+        <td>{{ r.book.title }}</td>
+        <td>{{ r.student.full_name }}</td>
+        <td>{{ r.expires_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('confirm_reservation', rid=r.id) }}">
+            <button class="btn-ok small">Выдать</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">Нет активных броней.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>📋 Все книги ({{ books|length }})</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Название</th><th>Автор</th><th>Категория</th><th>Доступно</th><th></th></tr>
+      {% for b in books %}
+      <tr>
+        <td><a href="{{ url_for('book_card', book_id=b.id) }}">{{ b.title }}</a></td>
+        <td>{{ b.author or '—' }}</td>
+        <td>{{ b.category }}</td>
+        <td>{{ b.available_copies }} / {{ b.total_copies }}</td>
+        <td>
+          <form method="post" action="{{ url_for('delete_book', book_id=b.id) }}"
+                onsubmit="return confirm('Удалить «{{ b.title }}»?');">
+            <button class="btn-danger small">Удалить</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Не сдавшие книги{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>⚠ Не сдавшие книги</h2>
+  <p class="muted">
+    Класс: <b>{{ class_code or '—' }}</b>
+    · Учебный год: <b>{{ school_year or '—' }}</b>
+  </p>
+  <a href="{{ url_for('index') }}" class="btn-clear small">← На главную</a>
+</div>
+
+{% if debtors %}
+<div class="card">
+  <h3>Должники ({{ debtors|length }})</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Ученик</th>
+        <th>Книга</th>
+        <th>Срок возврата</th>
+      </tr>
+      {% for r in debtors %}
+      <tr>
+        <td>{{ r.student.full_name if r.student else '—' }}</td>
+        <td>{{ r.book.title if r.book else '—' }}</td>
+        <td>
+          {% if r.due_date %}
+            <span class="badge badge-no">{{ r.due_date.strftime('%d.%m.%Y') }}</span>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card empty-state">
+  <h3>✅ Все книги сданы</h3>
+  <p>Должников нет.</p>
+</div>
+{% endif %}
+
+{% endblock %}

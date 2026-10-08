@@ -1,0 +1,550 @@
+/* ==============================
+   БАЗА
+   ============================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #f5f7fa;
+    color: #222;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a { color: #2c3e50; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ==============================
+   ШАПКА
+   ============================== */
+header {
+    background: #2c3e50;
+    color: #fff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff !important;
+    font-size: 1.05em;
+}
+.logo-link:hover { text-decoration: none; opacity: .9; }
+.logo-bee { font-size: 1.4em; }
+
+.main-nav a {
+    color: #fff;
+    opacity: .9;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background .2s;
+}
+.main-nav a:hover { opacity: 1; background: rgba(255,255,255,.1); text-decoration: none; }
+
+.user-info {
+    font-size: 14px;
+    opacity: .95;
+}
+.user-info small { opacity: .7; font-size: 12px; }
+
+.header-right a {
+    color: #fff;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background .2s;
+}
+.header-right a:hover { background: rgba(255,255,255,.1); text-decoration: none; }
+
+.btn-logout {
+    background: rgba(255,255,255,.15);
+    font-weight: 500;
+}
+
+/* ==============================
+   КОНТЕЙНЕР
+   ============================== */
+.container {
+    max-width: 1100px;
+    width: 100%;
+    margin: 20px auto;
+    padding: 0 15px;
+    flex: 1;
+}
+
+/* ==============================
+   КАРТОЧКИ
+   ============================== */
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+h1 { font-size: 24px; margin-bottom: 10px; }
+h2 { font-size: 20px; margin-bottom: 14px; color: #2c3e50; }
+h3 { font-size: 17px; margin-bottom: 10px; color: #34495e; }
+h4 { font-size: 15px; margin-bottom: 8px; }
+
+/* ==============================
+   ФОРМЫ
+   ============================== */
+input, select, textarea, button {
+    font-family: inherit;
+    font-size: 15px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccd;
+    border-radius: 8px;
+    background: #fff;
+    margin: 4px 0 10px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #2c3e50;
+    box-shadow: 0 0 0 3px rgba(44,62,80,.1);
+}
+
+textarea { resize: vertical; min-height: 70px; }
+
+label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+    margin-top: 6px;
+}
+
+button, .btn-primary {
+    background: #2c3e50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background .2s, transform .1s;
+    display: inline-block;
+    margin-top: 6px;
+}
+button:hover, .btn-primary:hover { background: #34495e; text-decoration: none; }
+button:active, .btn-primary:active { transform: translateY(1px); }
+
+.btn-primary.small, button.small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-clear {
+    background: transparent;
+    color: #2c3e50;
+    border: 1px solid #ccd;
+    padding: 10px 18px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 6px;
+}
+.btn-clear:hover { background: #f0f3f7; text-decoration: none; }
+
+.btn-ok { background: #27ae60; }
+.btn-ok:hover { background: #229954; }
+
+.btn-danger { background: #c0392b; }
+.btn-danger:hover { background: #a93226; }
+
+.btn-back {
+    display: inline-block;
+    color: #2c3e50;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+/* ==============================
+   ФЛЕШ-СООБЩЕНИЯ
+   ============================== */
+.flash {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+.flash.ok { background: #d4edda; color: #155724; border-left: 4px solid #27ae60; }
+.flash.error { background: #f8d7da; color: #721c24; border-left: 4px solid #c0392b; }
+
+/* ==============================
+   ГЛАВНАЯ СТРАНИЦА
+   ============================== */
+.hero {
+    text-align: center;
+    padding: 30px 15px;
+}
+.hero h1 {
+    font-size: 28px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+.hero-sub {
+    color: #666;
+    font-size: 15px;
+}
+
+.entry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.entry-card {
+    display: block;
+    text-align: center;
+    background: #f8fafc;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 22px 14px;
+    transition: all .2s;
+    color: #222;
+}
+.entry-card:hover {
+    border-color: #2c3e50;
+    background: #fff;
+    transform: translateY(-3px);
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+.entry-icon { font-size: 2.4em; margin-bottom: 8px; }
+.entry-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; color: #2c3e50; }
+.entry-desc { font-size: 13px; color: #777; }
+
+.features { list-style: none; }
+.features li { padding: 6px 0; font-size: 15px; }
+
+/* ==============================
+   АВТОРИЗАЦИЯ
+   ============================== */
+.auth-card {
+    max-width: 480px;
+    margin: 20px auto;
+}
+.auth-form { margin-top: 14px; }
+.auth-card .muted { color: #777; font-size: 14px; margin-bottom: 8px; }
+
+.auth-alt {
+    margin-top: 16px;
+    font-size: 14px;
+    text-align: center;
+    color: #666;
+}
+
+.demo-hint {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: #fff8e1;
+    border-left: 4px solid #f39c12;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #7f6000;
+}
+.demo-hint summary { cursor: pointer; font-weight: 600; }
+.demo-hint ul { margin: 8px 0 0 20px; }
+
+/* ==============================
+   КАТАЛОГ
+   ============================== */
+.filter-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: end;
+}
+.filter-form input, .filter-form select { margin: 0; }
+.filter-form button, .filter-form .btn-clear { margin: 0; }
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.book-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    transition: transform .2s, box-shadow .2s;
+    display: flex;
+    flex-direction: column;
+}
+.book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+}
+
+.book-cover-link {
+    display: block;
+    background: #ecf0f1;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+}
+.book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.book-body { padding: 12px; flex: 1; display: flex; flex-direction: column; }
+.book-body h3 {
+    font-size: 15px;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+.book-body h3 a { color: #2c3e50; }
+.book-author { color: #777; font-size: 13px; margin-bottom: 8px; }
+
+.book-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    white-space: nowrap;
+}
+.badge-encyclopedia { background: #fdebd0; color: #a04000; }
+.badge-fiction { background: #d5f4e6; color: #1e8449; }
+.badge-collection { background: #d6eaf8; color: #1a5276; }
+.badge-textbook { background: #fadbd8; color: #943126; }
+.badge-ok { background: #d4edda; color: #155724; }
+.badge-no { background: #f8d7da; color: #721c24; }
+
+/* ==============================
+   КАРТОЧКА КНИГИ
+   ============================== */
+.book-detail-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+}
+.book-detail-cover .big-cover {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.book-detail-info h1 { font-size: 26px; margin-bottom: 6px; }
+.book-detail-author { color: #777; margin-bottom: 12px; }
+
+.book-meta {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+}
+.book-meta td {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+.book-meta td:first-child {
+    color: #777;
+    width: 140px;
+}
+
+.book-annotation {
+    margin-top: 16px;
+    padding: 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+.book-annotation h3 { margin-bottom: 6px; font-size: 15px; }
+
+.book-actions { margin-top: 16px; }
+.muted.small { font-size: 13px; color: #888; }
+
+.cover-editor {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed #ddd;
+}
+
+/* ==============================
+   КАБИНЕТ УЧЕНИКА
+   ============================== */
+.student-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.student-avatar {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.loans-list { display: flex; flex-direction: column; gap: 10px; }
+.loan-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+.loan-due { font-size: 14px; color: #555; }
+
+.reading-list-card {
+    padding: 14px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.progress {
+    background: #ecf0f1;
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+}
+.progress-bar {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    height: 100%;
+    transition: width .4s;
+}
+
+/* ==============================
+   УВЕДОМЛЕНИЯ
+   ============================== */
+.notification-item {
+    border-left: 4px solid #3498db;
+}
+.notification-item h3 { color: #2c3e50; }
+
+/* ==============================
+   ТАБЛИЦЫ
+   ============================== */
+.table-wrap {
+    overflow-x: auto;
+    margin-top: 8px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px;
+}
+th, td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eef0f3;
+    font-size: 14px;
+    vertical-align: middle;
+}
+th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+/* ==============================
+   ЗАГЛУШКА / ПУСТОЕ СОСТОЯНИЕ
+   ============================== */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+.empty-state h3 { color: #2c3e50; margin-bottom: 8px; }
+
+.muted { color: #888; }
+.small { font-size: 13px; }
+
+/* ==============================
+   ПОДВАЛ
+   ============================== */
+footer {
+    background: #2c3e50;
+    color: #bdc3c7;
+    text-align: center;
+    padding: 16px;
+    font-size: 13px;
+    margin-top: 20px;
+}
+
+/* ==============================
+   АДАПТИВ
+   ============================== */
+@media (max-width: 800px) {
+    .book-detail-grid { grid-template-columns: 1fr; }
+    .filter-form { grid-template-columns: 1fr 1fr; }
+    .filter-form input[name="q"] { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+    header { font-size: 13px; padding: 10px 12px; }
+    .container { margin: 10px auto; padding: 0 10px; }
+    .card { padding: 14px; }
+    h1 { font-size: 20px; }
+    h2 { font-size: 17px; }
+    .hero h1 { font-size: 22px; }
+    .filter-form { grid-template-columns: 1fr; }
+    .books-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .book-body { padding: 8px; }
+    .book-body h3 { font-size: 13px; }
+    .student-avatar { width: 50px; height: 50px; font-size: 20px; }
+    th, td { padding: 8px 6px; font-size: 13px; }
+}
+
+@media (max-width: 400px) {
+    .books-grid { grid-template-columns: 1fr; }
+}

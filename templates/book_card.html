@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+
+<div class="card book-detail">
+  <div class="book-detail-grid">
+
+    <div class="book-detail-cover">
+      <img src="{{ book | cover_src }}" alt="{{ book.title }}" class="big-cover">
+    </div>
+
+    <div class="book-detail-info">
+      <h1>{{ book.title }}</h1>
+      <p class="book-detail-author">{{ book.author or 'Автор неизвестен' }}</p>
+
+      <div class="book-badges">
+        <span class="badge badge-{{ book.category }}">
+          {% if book.category == 'encyclopedia' %}📕 Энциклопедия
+          {% elif book.category == 'fiction' %}📗 Художественная
+          {% elif book.category == 'collection' %}📘 Сборник
+          {% elif book.category == 'textbook' %}📙 Учебник
+          {% else %}{{ book.category }}{% endif %}
+        </span>
+      </div>
+
+      <table class="book-meta">
+        <tr><td>Издательство</td><td>{{ book.publisher or '—' }}</td></tr>
+        <tr><td>Год издания</td><td>{{ book.year or '—' }}</td></tr>
+        <tr><td>ISBN</td><td>{{ book.isbn or '—' }}</td></tr>
+        <tr><td>Страниц</td><td>{{ book.pages or '—' }}</td></tr>
+        <tr><td>УДК</td><td>{{ book.udc or '—' }}</td></tr>
+        <tr><td>ББК</td><td>{{ book.bbk or '—' }}</td></tr>
+        <tr>
+          <td>В наличии</td>
+          <td>
+            <b style="color:{% if book.available_copies > 0 %}#27ae60{% else %}#c0392b{% endif %};">
+              {{ book.available_copies }} из {{ book.total_copies }}
+            </b>
+          </td>
+        </tr>
+      </table>
+
+      {% if book.annotation %}
+      <div class="book-annotation">
+        <h3>📝 Аннотация</h3>
+        <p>{{ book.annotation }}</p>
+      </div>
+      {% endif %}
+
+      <div class="book-actions">
+        {% if session.student_id %}
+          {% if book.available_copies > 0 %}
+          <form method="post" action="{{ url_for('reserve', book_id=book.id) }}">
+            <button type="submit" class="btn-primary">📌 Забронировать</button>
+          </form>
+          <p class="muted small">
+            Бронь действует до 15:00 следующего рабочего дня.
+          </p>
+          {% else %}
+          <p class="muted">Все экземпляры заняты. Загляните позже.</p>
+          {% endif %}
+
+        {% elif not current_user.is_authenticated %}
+          <a href="{{ url_for('student_entry') }}" class="btn-primary">
+            Войдите как ученик, чтобы забронировать
+          </a>
+        {% endif %}
+      </div>
+
+      {% if current_user.is_authenticated and current_user.role in ['librarian', 'admin'] %}
+      <div class="cover-editor">
+        <h4>Обложка</h4>
+        <form method="post" action="{{ url_for('edit_cover', book_id=book.id) }}"
+              enctype="multipart/form-data">
+          <input type="file" name="cover_file" accept="image/*">
+          <input name="cover_url" placeholder="...или вставьте ссылку на изображение">
+          <button type="submit">Сохранить обложку</button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<a href="{{ url_for('catalog') }}" class="btn-back">← Вернуться в каталог</a>
+
+{% endblock %}

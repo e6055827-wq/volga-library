@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Мой кабинет{% endblock %}
+
+{% block content %}
+
+<div class="card student-header">
+  <div class="student-avatar">
+    {{ student.full_name[0] }}
+  </div>
+  <div>
+    <h1>{{ student.full_name }}</h1>
+    <p class="muted">
+      Класс: <b>{{ student.class_code }}</b> · Прочитано книг: <b>{{ total_read }}</b>
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📖 Книги на руках</h2>
+  {% if active_loans %}
+    <div class="loans-list">
+      {% for loan in active_loans %}
+      <div class="loan-item">
+        <div>
+          <b>{{ loan.book.title }}</b>
+          <span class="muted"> · {{ loan.book.author or '—' }}</span>
+        </div>
+        <div class="loan-due">
+          Сдать до: <b>{{ loan.due_date.strftime('%d.%m.%Y') }}</b>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">У вас сейчас нет книг на руках.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>📌 Активные брони</h2>
+  {% if active_reservations %}
+    <div class="loans-list">
+      {% for r in active_reservations %}
+      <div class="loan-item">
+        <div>
+          <b>{{ r.book.title }}</b>
+          <span class="muted"> · {{ r.book.author or '—' }}</span>
+        </div>
+        <div class="loan-due">
+          Забрать до: <b>{{ r.expires_at.strftime('%d.%m.%Y %H:%M') }}</b>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">У вас нет активных броней.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>📚 Списки литературы от учителя</h2>
+  {% if reading_lists %}
+    {% for item in reading_lists %}
+    <div class="reading-list-card">
+      <h3>{{ item.list.title }}</h3>
+      <p class="muted">
+        Учитель: {{ item.list.teacher.full_name }}
+        {% if item.list.deadline %} · до {{ item.list.deadline.strftime('%d.%m.%Y') }}{% endif %}
+      </p>
+
+      <div class="progress">
+        <div class="progress-bar" style="width: {{ item.percent }}%"></div>
+      </div>
+      <p class="muted small">
+        Прочитано: {{ item.read }} из {{ item.total }} ({{ item.percent }}%)
+      </p>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="muted">Пока нет списков литературы.</p>
+  {% endif %}
+</div>
+
+<a href="{{ url_for('catalog') }}" class="btn-back">← Перейти в каталог</a>
+
+{% endblock %}

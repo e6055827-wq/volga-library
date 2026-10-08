@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная — Библиотека Вольгинского лицея{% endblock %}
+
+{% block content %}
+
+<div class="hero">
+  <h1>📚 Электронный каталог библиотеки</h1>
+  <p class="hero-sub">МАОУ «Вольгинский лицей»</p>
+</div>
+
+<div class="card">
+  <h2>Добро пожаловать!</h2>
+  <p>Выберите, как вы хотите войти в систему:</p>
+
+  <div class="entry-grid">
+    <a href="{{ url_for('student_entry') }}" class="entry-card">
+      <div class="entry-icon">🎒</div>
+      <div class="entry-title">Я ученик</div>
+      <div class="entry-desc">Введите ФИО и класс</div>
+    </a>
+
+    <a href="{{ url_for('login') }}" class="entry-card">
+      <div class="entry-icon">🔐</div>
+      <div class="entry-title">Сотрудник</div>
+      <div class="entry-desc">Библиотекарь, учитель, админ</div>
+    </a>
+
+    <a href="{{ url_for('catalog') }}" class="entry-card">
+      <div class="entry-icon">📖</div>
+      <div class="entry-title">Каталог книг</div>
+      <div class="entry-desc">Поиск и просмотр без входа</div>
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Что можно делать в системе</h2>
+  <ul class="features">
+    <li>📖 Найти книгу в каталоге по названию, автору или описанию</li>
+    <li>🔍 Отфильтровать по категориям: энциклопедии, художественные, учебники, сборники</li>
+    <li>📌 Забронировать книгу, если она свободна</li>
+    <li>📚 Получить список литературы от учителя</li>
+    <li>🔔 Узнавать о новых книгах и заданиях</li>
+    <li>📊 Смотреть свою историю чтения</li>
+  </ul>
+</div>
+
+{% endblock %}

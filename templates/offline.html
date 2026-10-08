@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Нет подключения{% endblock %}
+
+{% block content %}
+
+<div class="card empty-state">
+  <h1>📵 Нет подключения к интернету</h1>
+  <p>Проверьте сеть и обновите страницу.</p>
+  <a href="{{ url_for('index') }}" class="btn-primary">Попробовать снова</a>
+</div>
+
+{% endblock %}

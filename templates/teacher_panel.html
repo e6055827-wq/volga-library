@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель учителя{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>👨‍🏫 Панель учителя</h2>
+  <p>{{ current_user.full_name }}</p>
+</div>
+
+<div class="card">
+  <h3>📚 Создать список литературы</h3>
+  <form method="post" action="{{ url_for('create_reading_list') }}">
+    <div class="form-row">
+      <div>
+        <label>Название списка *</label>
+        <input name="title" required placeholder="Лето перед 6 классом">
+      </div>
+      <div>
+        <label>Класс</label>
+        <input name="target_class" placeholder="5А или ALL для всех">
+      </div>
+      <div>
+        <label>До какой даты</label>
+        <input name="deadline" type="date">
+      </div>
+    </div>
+
+    <label>Выберите книги (Ctrl / Cmd + клик для нескольких)</label>
+    <select name="book_ids" multiple size="8" required>
+      {% for b in books %}
+        <option value="{{ b.id }}">{{ b.title }} — {{ b.author or '—' }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="btn-primary">Создать список</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>📨 Разослать уведомление</h3>
+  <form method="post" action="{{ url_for('send_notification') }}">
+    <div class="form-row">
+      <div>
+        <label>Заголовок *</label>
+        <input name="title" required placeholder="Важное объявление">
+      </div>
+      <div>
+        <label>Кому</label>
+        <select name="audience">
+          <option value="all">Всем</option>
+          <option value="class">Конкретному классу</option>
+          <option value="student">Конкретному ученику</option>
+        </select>
+      </div>
+      <div>
+        <label>Значение</label>
+        <input name="audience_value" placeholder="5А / ID ученика">
+      </div>
+    </div>
+    <label>Текст уведомления</label>
+    <textarea name="body" rows="3"></textarea>
+    <button type="submit" class="btn-primary">Отправить</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>📖 Мои списки литературы</h3>
+  {% if assignments %}
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Название</th>
+        <th>Класс</th>
+        <th>До</th>
+        <th>Книг</th>
+        <th>Создан</th>
+      </tr>
+      {% for a in assignments %}
+      <tr>
+        <td>{{ a.title }}</td>
+        <td><span class="badge">{{ a.target_class or 'ALL' }}</span></td>
+        <td>{{ a.deadline.strftime('%d.%m.%Y') if a.deadline else '—' }}</td>
+        <td>{{ a.items|length }}</td>
+        <td>{{ a.created_at.strftime('%d.%m.%Y') }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">Вы ещё не создавали списков литературы.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

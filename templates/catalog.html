@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог книг{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>📖 Каталог книг</h2>
+
+  <form method="get" class="filter-form">
+    <input name="q" value="{{ q }}" placeholder="🔍 Поиск: название, автор, описание">
+
+    <select name="category">
+      <option value="">Все категории</option>
+      <option value="encyclopedia" {% if category == 'encyclopedia' %}selected{% endif %}>
+        📕 Энциклопедия
+      </option>
+      <option value="fiction" {% if category == 'fiction' %}selected{% endif %}>
+        📗 Художественная
+      </option>
+      <option value="collection" {% if category == 'collection' %}selected{% endif %}>
+        📘 Сборник
+      </option>
+      <option value="textbook" {% if category == 'textbook' %}selected{% endif %}>
+        📙 Учебник
+      </option>
+    </select>
+
+    <select name="sort">
+      <option value="title" {% if sort == 'title' %}selected{% endif %}>По алфавиту</option>
+      <option value="author" {% if sort == 'author' %}selected{% endif %}>По автору</option>
+      <option value="year" {% if sort == 'year' %}selected{% endif %}>По году (новые)</option>
+    </select>
+
+    <button type="submit" class="btn-primary">Найти</button>
+    <a href="{{ url_for('catalog') }}" class="btn-clear">Сбросить</a>
+  </form>
+</div>
+
+{% if books %}
+<div class="books-grid">
+  {% for book in books %}
+  <div class="book-card">
+    <a href="{{ url_for('book_card', book_id=book.id) }}" class="book-cover-link">
+      <img src="{{ book | cover_src }}" alt="{{ book.title }}" class="book-cover">
+    </a>
+
+    <div class="book-body">
+      <h3>
+        <a href="{{ url_for('book_card', book_id=book.id) }}">{{ book.title }}</a>
+      </h3>
+      <p class="book-author">{{ book.author or 'Автор неизвестен' }}</p>
+
+      <div class="book-badges">
+        <span class="badge badge-{{ book.category }}">
+          {% if book.category == 'encyclopedia' %}📕 Энциклопедия
+          {% elif book.category == 'fiction' %}📗 Художественная
+          {% elif book.category == 'collection' %}📘 Сборник
+          {% elif book.category == 'textbook' %}📙 Учебник
+          {% else %}{{ book.category }}{% endif %}
+        </span>
+
+        {% if book.available_copies > 0 %}
+          <span class="badge badge-ok">✓ Доступно: {{ book.available_copies }}</span>
+        {% else %}
+          <span class="badge badge-no">✗ Нет в наличии</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<p class="muted">Найдено книг: {{ books|length }}</p>
+
+{% else %}
+<div class="card empty-state">
+  <h3>📭 Ничего не найдено</h3>
+  <p>Попробуйте изменить запрос или сбросить фильтры.</p>
+  <a href="{{ url_for('catalog') }}" class="btn-primary">Показать все книги</a>
+</div>
+{% endif %}
+
+{% endblock %}

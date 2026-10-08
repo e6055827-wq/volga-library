@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>⚙️ Панель администратора</h2>
+  <p>Книг в каталоге: <b>{{ books_count }}</b> · Пользователей: <b>{{ users|length }}</b> · Учеников: <b>{{ students|length }}</b></p>
+</div>
+
+<div class="card">
+  <h3>➕ Добавить сотрудника</h3>
+  <form method="post" action="{{ url_for('add_user') }}">
+    <div class="form-row">
+      <div>
+        <label>Роль</label>
+        <select name="role" required>
+          <option value="admin">Администратор</option>
+          <option value="librarian">Библиотекарь</option>
+          <option value="teacher">Учитель</option>
+        </select>
+      </div>
+      <div>
+        <label>Логин</label>
+        <input name="username" required placeholder="ivanov">
+      </div>
+      <div>
+        <label>Пароль</label>
+        <input name="password" type="password" required placeholder="надёжный пароль">
+      </div>
+      <div>
+        <label>ФИО</label>
+        <input name="full_name" placeholder="Иванов И.И.">
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Добавить</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>➕ Добавить ученика</h3>
+  <form method="post" action="{{ url_for('add_student') }}">
+    <div class="form-row">
+      <div>
+        <label>ФИО полностью</label>
+        <input name="full_name" required placeholder="Иванов Иван Иванович">
+      </div>
+      <div>
+        <label>Класс (число)</label>
+        <input name="class_num" type="number" min="1" max="11" required placeholder="5">
+      </div>
+      <div>
+        <label>Буква</label>
+        <input name="class_letter" maxlength="2" required placeholder="А">
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Добавить ученика</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>👥 Пользователи системы</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>ID</th><th>Роль</th><th>Логин</th><th>ФИО</th></tr>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td><span class="badge">{{ u.role }}</span></td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.full_name or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>🎒 Ученики</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>ID</th><th>ФИО</th><th>Класс</th></tr>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.id }}</td>
+        <td>{{ s.full_name }}</td>
+        <td><b>{{ s.class_code }}</b></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}

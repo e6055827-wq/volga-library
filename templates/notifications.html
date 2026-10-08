@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Уведомления{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>🔔 Уведомления</h2>
+
+  {% if not session.student_id and not current_user.is_authenticated %}
+    <p class="muted">Войдите в систему, чтобы получать уведомления.</p>
+    <a href="{{ url_for('student_entry') }}" class="btn-primary">Войти как ученик</a>
+    <a href="{{ url_for('login') }}" class="btn-clear">Войти как сотрудник</a>
+  {% endif %}
+</div>
+
+{% if notifications %}
+  {% for n in notifications %}
+  <div class="card notification-item">
+    <h3>{{ n.title }}</h3>
+    <p>{{ n.body or '' }}</p>
+    <p class="muted small">
+      {{ n.created_at.strftime('%d.%m.%Y %H:%M') }}
+      · аудитория: {{ n.audience }}{% if n.audience_value %} ({{ n.audience_value }}){% endif %}
+    </p>
+
+    {% if session.student_id %}
+    <form method="post" action="{{ url_for('mark_notification_read', nid=n.id) }}">
+      <button type="submit" class="btn-clear small">✓ Отметить как прочитанное</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+{% elif session.student_id %}
+  <div class="card empty-state">
+    <h3>🎉 Нет новых уведомлений</h3>
+    <p>Вы всё прочитали!</p>
+  </div>
+{% endif %}
+
+{% endblock %}

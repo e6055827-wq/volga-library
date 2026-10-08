@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Библиотека — Вольгинский лицей{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<!-- PWA -->
+<link rel="manifest" href="{{ url_for('manifest') }}">
+<meta name="theme-color" content="#2c3e50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a href="{{ url_for('index') }}" class="logo-link">
+      <span class="logo-bee">🐝</span>
+      <b>МАОУ «Вольгинский лицей»</b>
+    </a>
+    <nav class="main-nav">
+      <a href="{{ url_for('catalog') }}">Каталог</a>
+      <a href="{{ url_for('notifications') }}">Уведомления</a>
+      <a href="{{ url_for('history') }}">История</a>
+    </nav>
+  </div>
+
+  <div class="header-right">
+    {% if current_user.is_authenticated %}
+      <span class="user-info">
+        {{ current_user.full_name or current_user.username }}
+        <small>({{ current_user.role }})</small>
+      </span>
+      {% if current_user.role == 'admin' %}
+        <a href="{{ url_for('admin_panel') }}">Админ</a>
+      {% endif %}
+      {% if current_user.role in ['librarian', 'admin'] %}
+        <a href="{{ url_for('librarian_panel') }}">Библиотека</a>
+      {% endif %}
+      {% if current_user.role in ['teacher', 'admin'] %}
+        <a href="{{ url_for('teacher_panel') }}">Учитель</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}" class="btn-logout">Выйти</a>
+
+    {% elif session.student_id %}
+      <span class="user-info">
+        👤 {{ session.student_name }}
+        <small>({{ session.student_class }})</small>
+      </span>
+      <a href="{{ url_for('student_cabinet') }}">Мой кабинет</a>
+      <a href="{{ url_for('student_logout') }}" class="btn-logout">Выйти</a>
+
+    {% else %}
+      <a href="{{ url_for('login') }}">Вход для сотрудников</a>
+      <a href="{{ url_for('student_entry') }}">Вход ученика</a>
+    {% endif %}
+  </div>
+</header>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<footer>
+  <p>© {{ 2026 }} МАОУ «Вольгинский лицей» · Электронный каталог библиотеки</p>
+</footer>
+
+<script>
+// Регистрация Service Worker для PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(r => console.log('SW OK:', r.scope))
+      .catch(e => console.log('SW ошибка:', e));
+  });
+}
+</script>
+
+</body>
+</html>

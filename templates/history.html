@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}История{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <h2>📜 История</h2>
+  {% if session.student_id %}
+    <p class="muted">Ваши действия и выдачи книг</p>
+  {% elif current_user.is_authenticated %}
+    <p class="muted">Ваши действия в системе</p>
+  {% endif %}
+</div>
+
+{% if loans %}
+<div class="card">
+  <h3>📖 Выданные книги</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Книга</th>
+        <th>Дата выдачи</th>
+        <th>Вернуть до</th>
+        <th>Возвращена</th>
+      </tr>
+      {% for l in loans %}
+      <tr>
+        <td>{{ l.book.title }}</td>
+        <td>{{ l.issued_at.strftime('%d.%m.%Y') }}</td>
+        <td>{{ l.due_date.strftime('%d.%m.%Y') }}</td>
+        <td>
+          {% if l.returned_at %}
+            <span class="badge badge-ok">✓ {{ l.returned_at.strftime('%d.%m.%Y') }}</span>
+          {% else %}
+            <span class="badge badge-no">на руках</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if reservations %}
+<div class="card">
+  <h3>📌 Брони</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Книга</th>
+        <th>Забронирована</th>
+        <th>Истекает</th>
+        <th>Статус</th>
+      </tr>
+      {% for r in reservations %}
+      <tr>
+        <td>{{ r.book.title }}</td>
+        <td>{{ r.reserved_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        <td>{{ r.expires_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        <td>
+          {% if r.status == 'active' %}<span class="badge">активна</span>
+          {% elif r.status == 'taken' %}<span class="badge badge-ok">выдана</span>
+          {% else %}<span class="badge badge-no">{{ r.status }}</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if history %}
+<div class="card">
+  <h3>🕓 Действия</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Дата</th>
+        <th>Действие</th>
+        <th>Детали</th>
+      </tr>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        <td>{{ h.action }}</td>
+        <td>{{ h.details }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if not loans and not reservations and not history %}
+<div class="card empty-state">
+  <h3>📭 История пуста</h3>
+  <p>Как только вы возьмёте книгу, всё появится здесь.</p>
+  <a href="{{ url_for('catalog') }}" class="btn-primary">Перейти в каталог</a>
+</div>
+{% endif %}
+
+{% endblock %}
