@@ -19,26 +19,22 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-me')
 
-# База: SQLite локально, PostgreSQL на Neon (через DATABASE_URL)
+# База: SQLite локально, PostgreSQL через DATABASE_URL (pg8000)
 uri = os.environ.get('DATABASE_URL', 'sqlite:///library.db')
+
 if uri.startswith('postgres://'):
     uri = uri.replace('postgres://', 'postgresql://', 1)
 
-# SQLAlchemy не понимает параметры connection_limit и подобные —
-# убираем их, оставляем только sslmode для PostgreSQL
 if uri.startswith('postgresql://'):
-    if '?' in uri:
-        base, params = uri.split('?', 1)
-        # оставляем только sslmode=require
-        keep = [p for p in params.split('&') if p.startswith('sslmode=')]
-        uri = base + ('?' + '&'.join(keep) if keep else '')
+    uri = uri.replace('postgresql://', 'postgresql+pg8000://', 1)
+
+if uri.startswith('postgresql+pg8000://') and '?' in uri:
+    base, params = uri.split('?', 1)
+    keep = [p for p in params.split('&') if p.startswith('sslmode=')]
+    uri = base + ('?' + '&'.join(keep) if keep else '')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_pre_ping': True,
-    'pool_recycle': 300,
-}
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True,
     'pool_recycle': 300,
@@ -242,7 +238,7 @@ def log_action(actor_type, actor_id, action, details):
 
 
 # ==============================
-# ГЛАВНАЯ И ВХОД
+# ГЛАВНАЯ
 # ==============================
 @app.route('/')
 def index():
@@ -689,7 +685,6 @@ def manifest():
 with app.app_context():
     db.create_all()
 
-    # Демо-аккаунты (создаются только если их нет)
     if not User.query.filter_by(username='admin').first():
         for u, p, r, n in [
             ('admin', 'admin123', 'admin', 'Администратор'),
@@ -701,7 +696,6 @@ with app.app_context():
         db.session.commit()
         print('✅ Демо-аккаунты созданы')
 
-    # Демо-ученики
     if Student.query.count() == 0:
         for n, cn, cl in [('Иванов Иван Иванович', 5, 'А'),
                           ('Петрова Мария Сергеевна', 5, 'А'),
@@ -711,7 +705,6 @@ with app.app_context():
         db.session.commit()
         print('✅ Демо-ученики добавлены')
 
-    # Демо-книги
     if Book.query.count() == 0:
         for t, a, c, p, y, i, pg, u, b, an, tc in [
             ('Война и мир', 'Л.Н. Толстой', 'fiction', 'Просвещение', 2018,
@@ -722,7 +715,7 @@ with app.app_context():
              '978-5-35-800001', 400, '821.161.1', '84(2Рос)1', 'Избранные рассказы', 4),
             ('Математика 5 класс', 'Виленкин Н.Я.', 'textbook', 'Мнемозина', 2021,
              '978-5-34-600001', 280, '51', '22.1', 'Учебник для 5 класса', 30),
-            ('Физика 7 класс', 'Перышкин А.В.', 'textbook', 'Дрофа', 2022,
+            ('Физика 7 класс', 'Перyшкин А.В.', 'textbook', 'Дрофа', 2022,
              '978-5-35-800123', 224, '53', '22.3', 'Учебник для 7 класса', 25),
         ]:
             db.session.add(Book(title=t, author=a, category=c, publisher=p, year=y,
@@ -733,4 +726,5 @@ with app.app_context():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
