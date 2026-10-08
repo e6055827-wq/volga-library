@@ -25,19 +25,25 @@ uri = os.environ.get('DATABASE_URL', 'sqlite:///library.db')
 if uri.startswith('postgres://'):
     uri = uri.replace('postgres://', 'postgresql://', 1)
 
+# Используем драйвер pg8000 для PostgreSQL (не требует компиляции)
 if uri.startswith('postgresql://'):
     uri = uri.replace('postgresql://', 'postgresql+pg8000://', 1)
 
+# pg8000 не понимает параметры URL — убираем их полностью
 if uri.startswith('postgresql+pg8000://') and '?' in uri:
-    base, params = uri.split('?', 1)
-    keep = [p for p in params.split('&') if p.startswith('sslmode=')]
-    uri = base + ('?' + '&'.join(keep) if keep else '')
+    uri = uri.split('?', 1)[0]
+
+# SSL для pg8000 задаётся через connect_args, а не в URL
+connect_args = {}
+if uri.startswith('postgresql+pg8000://'):
+    connect_args = {'ssl_context': True}
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True,
     'pool_recycle': 300,
+    'connect_args': connect_args,
 }
 
 db = SQLAlchemy(app)
@@ -217,8 +223,11 @@ def student_required(f):
 
 @app.context_processor
 def inject_globals():
-    classes = db.session.query(Student.class_num, Student.class_letter).distinct().all()
-    all_classes = sorted([f"{c[0]}{c[1]}" for c in classes])
+    try:
+        classes = db.session.query(Student.class_num, Student.class_letter).distinct().all()
+        all_classes = sorted([f"{c[0]}{c[1]}" for c in classes])
+    except Exception:
+        all_classes = []
     return dict(all_classes=all_classes)
 
 
@@ -683,46 +692,49 @@ def manifest():
 # ИНИЦИАЛИЗАЦИЯ
 # ==============================
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
 
-    if not User.query.filter_by(username='admin').first():
-        for u, p, r, n in [
-            ('admin', 'admin123', 'admin', 'Администратор'),
-            ('librarian', 'lib123', 'librarian', 'Библиотекарь Иванова И.И.'),
-            ('teacher', 'teacher123', 'teacher', 'Учитель Петров П.П.'),
-        ]:
-            db.session.add(User(username=u, password_hash=generate_password_hash(p),
-                                role=r, full_name=n))
-        db.session.commit()
-        print('✅ Демо-аккаунты созданы')
+        if not User.query.filter_by(username='admin').first():
+            for u, p, r, n in [
+                ('admin', 'admin123', 'admin', 'Администратор'),
+                ('librarian', 'lib123', 'librarian', 'Библиотекарь Иванова И.И.'),
+                ('teacher', 'teacher123', 'teacher', 'Учитель Петров П.П.'),
+            ]:
+                db.session.add(User(username=u, password_hash=generate_password_hash(p),
+                                    role=r, full_name=n))
+            db.session.commit()
+            print('✅ Демо-аккаунты созданы')
 
-    if Student.query.count() == 0:
-        for n, cn, cl in [('Иванов Иван Иванович', 5, 'А'),
-                          ('Петрова Мария Сергеевна', 5, 'А'),
-                          ('Сидоров Пётр Алексеевич', 5, 'Б'),
-                          ('Кузнецова Анна Дмитриевна', 7, 'А')]:
-            db.session.add(Student(full_name=n, class_num=cn, class_letter=cl))
-        db.session.commit()
-        print('✅ Демо-ученики добавлены')
+        if Student.query.count() == 0:
+            for n, cn, cl in [('Иванов Иван Иванович', 5, 'А'),
+                              ('Петрова Мария Сергеевна', 5, 'А'),
+                              ('Сидоров Пётр Алексеевич', 5, 'Б'),
+                              ('Кузнецова Анна Дмитриевна', 7, 'А')]:
+                db.session.add(Student(full_name=n, class_num=cn, class_letter=cl))
+            db.session.commit()
+            print('✅ Демо-ученики добавлены')
 
-    if Book.query.count() == 0:
-        for t, a, c, p, y, i, pg, u, b, an, tc in [
-            ('Война и мир', 'Л.Н. Толстой', 'fiction', 'Просвещение', 2018,
-             '978-5-09-000001', 1274, '821.161.1', '84(2Рос)1', 'Роман-эпопея', 5),
-            ('Большая российская энциклопедия', 'Коллектив авторов', 'encyclopedia',
-             'БРЭ', 2020, '978-5-85-270-001', 800, '030', '92', 'Универсальная энциклопедия', 3),
-            ('Сборник рассказов', 'А.П. Чехов', 'collection', 'Дрофа', 2019,
-             '978-5-35-800001', 400, '821.161.1', '84(2Рос)1', 'Избранные рассказы', 4),
-            ('Математика 5 класс', 'Виленкин Н.Я.', 'textbook', 'Мнемозина', 2021,
-             '978-5-34-600001', 280, '51', '22.1', 'Учебник для 5 класса', 30),
-            ('Физика 7 класс', 'Перyшкин А.В.', 'textbook', 'Дрофа', 2022,
-             '978-5-35-800123', 224, '53', '22.3', 'Учебник для 7 класса', 25),
-        ]:
-            db.session.add(Book(title=t, author=a, category=c, publisher=p, year=y,
-                                isbn=i, pages=pg, udc=u, bbk=b, annotation=an,
-                                total_copies=tc, available_copies=tc))
-        db.session.commit()
-        print('✅ Демо-книги добавлены')
+        if Book.query.count() == 0:
+            for t, a, c, p, y, i, pg, u, b, an, tc in [
+                ('Война и мир', 'Л.Н. Толстой', 'fiction', 'Просвещение', 2018,
+                 '978-5-09-000001', 1274, '821.161.1', '84(2Рос)1', 'Роман-эпопея', 5),
+                ('Большая российская энциклопедия', 'Коллектив авторов', 'encyclopedia',
+                 'БРЭ', 2020, '978-5-85-270-001', 800, '030', '92', 'Универсальная энциклопедия', 3),
+                ('Сборник рассказов', 'А.П. Чехов', 'collection', 'Дрофа', 2019,
+                 '978-5-35-800001', 400, '821.161.1', '84(2Рос)1', 'Избранные рассказы', 4),
+                ('Математика 5 класс', 'Виленкин Н.Я.', 'textbook', 'Мнемозина', 2021,
+                 '978-5-34-600001', 280, '51', '22.1', 'Учебник для 5 класса', 30),
+                ('Физика 7 класс', 'Перышкин А.В.', 'textbook', 'Дрофа', 2022,
+                 '978-5-35-800123', 224, '53', '22.3', 'Учебник для 7 класса', 25),
+            ]:
+                db.session.add(Book(title=t, author=a, category=c, publisher=p, year=y,
+                                    isbn=i, pages=pg, udc=u, bbk=b, annotation=an,
+                                    total_copies=tc, available_copies=tc))
+            db.session.commit()
+            print('✅ Демо-книги добавлены')
+    except Exception as e:
+        print(f'⚠️ Ошибка инициализации БД: {e}')
 
 
 if __name__ == '__main__':
